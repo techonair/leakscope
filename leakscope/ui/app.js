@@ -6,6 +6,23 @@ const emptyState = document.querySelector("#empty-state");
 const resultContent = document.querySelector("#result-content");
 const errorMessage = document.querySelector("#error-message");
 
+async function refreshJevStatus() {
+  const badge = document.querySelector("#jev-status");
+  try {
+    const response = await fetch("/health");
+    const health = await response.json();
+    const available = health.jev_status === "configured";
+    badge.textContent = available ? `JEV · ${health.jev_model}` : "JEV KEY NOT SET";
+    badge.classList.toggle("is-unavailable", !available);
+    document.querySelector("#jev-footer").textContent = available
+      ? `Jev connected · ${health.jev_model} · policy controls outcome`
+      : "Set JEV_API_KEY server-side to enable Jev classification";
+  } catch {
+    badge.textContent = "JEV STATUS UNKNOWN";
+    badge.classList.add("is-unavailable");
+  }
+}
+
 const descriptions = {
   L4: "Critical signal. Follow your organisation's approved incident process.",
   L3: "High-priority signal. Assign an owner for prompt investigation.",
@@ -29,6 +46,32 @@ function addProvenance(provenance) {
     detail.textContent = String(value);
     list.append(term, detail);
   }
+}
+
+function renderAnswers(answers) {
+  const list = document.querySelector("#answer-list");
+  list.replaceChildren();
+  for (const [questionId, answer] of Object.entries(answers)) {
+    let value;
+    if (answer.type === "noul") {
+      value = `${Math.round(answer.noul * 100)}% yes`;
+    } else if (answer.type === "score") {
+      value = `${answer.score.toFixed(1)} / 3 · ${Math.round(answer.confidence * 100)}% confidence`;
+    } else {
+      value = `${answer.choice} · ${Math.round(answer.confidence * 100)}% confidence`;
+    }
+    const row = document.createElement("div");
+    const id = document.createElement("span");
+    const detail = document.createElement("span");
+    row.className = "answer-row";
+    id.className = "answer-id";
+    detail.className = "answer-value";
+    id.textContent = questionId;
+    detail.textContent = value;
+    row.append(id, detail);
+    list.append(row);
+  }
+  document.querySelector("#no-answers").hidden = Object.keys(answers).length > 0;
 }
 
 function renderResult(result) {
@@ -60,6 +103,11 @@ function renderResult(result) {
     : String(result.evidence.length);
   document.querySelector("#no-evidence").hidden = result.evidence.length > 0;
   document.querySelector("#masked-preview").textContent = result.masked_text;
+  renderAnswers(result.answers);
+  const jevStatus = document.querySelector("#jev-status");
+  jevStatus.textContent =
+    result.model_status === "configured" ? `JEV · ${result.provenance.model}` : `JEV ${result.model_status.toUpperCase()}`;
+  jevStatus.classList.toggle("is-unavailable", result.model_status !== "configured");
   addProvenance(result.provenance);
   errorMessage.hidden = true;
   emptyState.hidden = true;
@@ -79,7 +127,10 @@ form.addEventListener("submit", async (event) => {
       body: JSON.stringify({ text: input.value, source: document.querySelector("#source").value }),
     });
     if (!response.ok) throw new Error("Triage request failed. Check the input and local API status.");
-    renderResult(await response.json());
+    const result = await response.json();
+    renderResult(result);
+    input.value = "";
+    count.textContent = "0 characters";
   } catch (error) {
     errorMessage.textContent = error instanceof Error ? error.message : "Triage request failed.";
     errorMessage.hidden = false;
@@ -88,3 +139,5 @@ form.addEventListener("submit", async (event) => {
     button.innerHTML = '<span aria-hidden="true">↗</span> Run triage';
   }
 });
+
+refreshJevStatus();

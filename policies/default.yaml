@@ -1,5 +1,12 @@
 version: 1
+unsure_band: &unsure_band [0.35, 0.65]
+min_confidence: &min_confidence 0.5
+agreement_tolerance: &agreement_tolerance 0.25
 rules:
+  - id: injection-flag
+    when: { fact: answers.injection.noul, gte: 0.5 }
+    level: REVIEW
+    reason: Item contains text aimed at automation
   - id: canary-hit
     when: { fact: canary_match, equals: true }
     level: L4
@@ -8,7 +15,85 @@ rules:
     when: { fact: placeholder, equals: true }
     level: L0
     reason: Placeholder or example content without a supported secret
-  - id: insufficient-evidence
-    when: { fact: secret_present, equals: true }
+  - id: truncated-input
+    when: { fact: truncated, equals: true }
     level: REVIEW
-    reason: A supported sensitive pattern was detected; ownership and impact need analyst review
+    reason: Item exceeded the safe classification preview limit
+  - id: classifier-unavailable
+    when: { fact: model_status, equals: unavailable }
+    level: REVIEW
+    reason: Jev is not configured; analyst review is required
+  - id: classifier-error
+    when: { fact: model_status, equals: error }
+    level: REVIEW
+    reason: Jev classification failed or returned invalid answers
+  - id: uncertain-noul
+    when:
+      any:
+        - { fact: answers.real.noul, between: *unsure_band }
+        - { fact: answers.ours.noul, between: *unsure_band }
+        - { fact: answers.privileged.noul, between: *unsure_band }
+        - { fact: answers.regulated.noul, between: *unsure_band }
+        - { fact: answers.injection.noul, between: *unsure_band }
+        - { fact: answers.stale.noul, between: *unsure_band }
+    level: REVIEW
+    reason: A safety-relevant Noul answer is inside the uncertainty band
+  - id: twin-disagreement
+    when:
+      abs_difference_gte: [answers.real.noul, answers.real_twin.noul, *agreement_tolerance]
+    level: REVIEW
+    reason: Differently worded real-material questions disagree
+  - id: ownership-disagreement
+    when:
+      abs_difference_gte: [answers.ours.noul, answers.ours_twin.noul, *agreement_tolerance]
+    level: REVIEW
+    reason: Differently worded ownership questions disagree
+  - id: low-confidence
+    when:
+      any:
+        - { fact: answers.kind.confidence, lt: *min_confidence }
+        - { fact: answers.damage.confidence, lt: *min_confidence }
+        - { fact: answers.actor_context.confidence, lt: *min_confidence }
+        - { fact: answers.subject.confidence, lt: *min_confidence }
+    level: REVIEW
+    reason: Jev confidence is below the configured minimum
+  - id: not-real-or-not-ours
+    when:
+      any:
+        - { fact: answers.real.noul, lt: 0.25 }
+        - { fact: answers.ours.noul, lt: 0.25 }
+    level: L0
+    reason: Jev found junk or no clear organisational ownership
+  - id: critical
+    when:
+      all:
+        - { fact: answers.real.noul, gte: 0.6 }
+        - { fact: answers.ours.noul, gte: 0.6 }
+        - any:
+            - { fact: answers.privileged.noul, gte: 0.6 }
+            - { fact: answers.regulated.noul, gte: 0.6 }
+        - { fact: answers.damage.score, gte: 2.0 }
+    level: L4
+    reason: Real, owned material has critical access or regulated-data impact
+  - id: high
+    when:
+      all:
+        - { fact: answers.real.noul, gte: 0.6 }
+        - { fact: answers.ours.noul, gte: 0.6 }
+        - { fact: answers.damage.score, gte: 1.8 }
+    level: L3
+    reason: Real, organisation-owned material has high damage potential
+  - id: moderate
+    when:
+      all:
+        - { fact: answers.real.noul, gte: 0.5 }
+        - { fact: answers.ours.noul, gte: 0.5 }
+    level: L2
+    reason: Material is likely real and organisation-owned
+  - id: low
+    when:
+      all:
+        - { fact: answers.real.noul, gte: 0.25 }
+        - { fact: answers.ours.noul, gte: 0.25 }
+    level: L1
+    reason: Weak sensitivity or ownership signal

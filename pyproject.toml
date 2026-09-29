@@ -13,6 +13,7 @@ dependencies = [
   "fastapi>=0.115,<1",
   "uvicorn[standard]>=0.30,<1",
   "PyYAML>=6.0,<7",
+  "httpx>=0.27,<1",
 ]
 
 [project.optional-dependencies]
@@ -26,6 +27,7 @@ packages = ["leakscope"]
 
 [tool.hatch.build.targets.wheel.force-include]
 "policies/default.yaml" = "leakscope/policy/default.yaml"
+"questions/v1.yaml" = "leakscope/classify/v1.yaml"
 "leakscope/ui/index.html" = "leakscope/ui/index.html"
 "leakscope/ui/app.css" = "leakscope/ui/app.css"
 "leakscope/ui/app.js" = "leakscope/ui/app.js"

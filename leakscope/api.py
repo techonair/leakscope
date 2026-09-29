@@ -29,7 +29,12 @@ def analyst_console() -> FileResponse:
 
 @app.get("/health")
 def health() -> dict[str, str]:
-    return {"status": "ok", "version": "0.1.0"}
+    return {
+        "status": "ok",
+        "version": "0.1.0",
+        "jev_status": "configured" if service.classifier.configured else "unavailable",
+        "jev_model": service.classifier.model if service.classifier.configured else "",
+    }
 
 
 @app.post("/v1/triage", response_model=TriageResult)

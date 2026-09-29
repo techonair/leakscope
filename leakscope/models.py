@@ -29,4 +29,6 @@ class TriageResult(BaseModel):
     masked_text: str
     evidence: list[Evidence]
     facts: dict[str, Any]
+    answers: dict[str, Any] = Field(default_factory=dict)
+    model_status: Literal["configured", "unavailable", "error", "skipped"]
     provenance: dict[str, str]

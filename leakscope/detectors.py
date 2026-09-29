@@ -22,6 +22,11 @@ _AWS = re.compile(r"\b(?:AKIA|ASIA)[A-Z0-9]{16}\b")
 _GITHUB = re.compile(r"\b(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})\b")
 _JWT = re.compile(r"\beyJ[A-Za-z0-9_-]*\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]*\b")
 _CARD = re.compile(r"(?<!\d)(?:\d[ -]?){12,18}\d(?!\d)")
+_GENERIC_SECRET = re.compile(
+    r"\b(?:password|passwd|pwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret)"
+    r"\b\s*[:=]\s*[\"']?([^\s,;'\"\\}]{4,})",
+    re.IGNORECASE,
+)
 _EMAIL = re.compile(r"\b[A-Z0-9._%+-]+@([A-Z0-9.-]+\.[A-Z]{2,})\b", re.IGNORECASE)
 _PLACEHOLDER = re.compile(
     r"\b(?:changeme|change-me|example(?:-key)?|your[-_ ]?(?:api[-_ ]?)?key|"
@@ -72,6 +77,11 @@ def detect(text: str) -> list[Match]:
             matches.append(
                 Match("payment_card", found.start(), found.end(), found.group(), True, digits in _TEST_CARDS)
             )
+    for found in _GENERIC_SECRET.finditer(text):
+        secret = found.group(1)
+        if not _PLACEHOLDER.fullmatch(secret):
+            start, end = found.span(1)
+            matches.append(Match("generic_secret", start, end, secret))
     return sorted(matches, key=lambda match: (match.start, -(match.end - match.start)))
 
 

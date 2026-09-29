@@ -15,6 +15,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 
 body { margin: 0; min-width: 320px; }
 
@@ -32,6 +33,8 @@ body { margin: 0; min-width: 320px; }
 .brand-mark { display: grid; place-items: center; width: 27px; height: 27px; border: 1px solid #b8d0bd; color: #b8d0bd; font-family: Georgia, serif; font-size: 18px; }
 .topbar-meta { display: flex; align-items: center; gap: 9px; font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #d3d9d1; }
 .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #87bf99; }
+.jev-status { padding: 4px 6px; border: 1px solid #59665b; color: #d4dfd5; font-size: 8px; }
+.jev-status.is-unavailable { border-color: #8b6654; color: #f0c2a8; }
 .version { padding-left: 7px; color: #9da89e; }
 
 main { max-width: 1320px; margin: 0 auto; padding: 47px 5.2vw 26px; }
@@ -66,6 +69,7 @@ button:disabled { opacity: .6; cursor: wait; }
 .input-footnote { margin: 12px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
 
 .empty-state { min-height: 430px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px dashed #d9ded7; color: #879087; }
+#empty-state[hidden], #result-content[hidden], #no-evidence[hidden], #error-message[hidden] { display: none; }
 .empty-state p { margin: 12px 0 0; font-size: 12px; }
 .empty-symbol { display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid #d9ded7; border-radius: 50%; font-family: Georgia, serif; font-size: 24px; }
 .result-content { animation: appear .22s ease-out both; }
@@ -84,6 +88,10 @@ button:disabled { opacity: .6; cursor: wait; }
 .reasons li::before { position: absolute; left: 0; color: var(--coral); content: "+"; font-weight: 800; }
 .evidence-list { display: flex; flex-wrap: wrap; gap: 7px; }
 .evidence-chip { padding: 6px 8px; border: 1px solid #d9ded7; color: #34453a; font-family: Consolas, "Courier New", monospace; font-size: 10px; }
+.answer-list { display: grid; gap: 6px; }
+.answer-row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 9px; background: #f5f7f4; font-size: 11px; }
+.answer-id { color: #687267; }
+.answer-value { color: #2d4736; font-weight: 700; text-align: right; }
 .masked-preview { max-height: 116px; overflow: auto; margin: 0; padding: 12px; background: #f4f5f2; color: #50594f; font-family: Consolas, "Courier New", monospace; font-size: 11px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
 .provenance { margin-top: 19px; padding-top: 13px; border-top: 1px solid var(--line); }
 .provenance summary { color: #4f5c51; font-size: 11px; cursor: pointer; }
