@@ -1,0 +1,14 @@
+version: 1
+rules:
+  - id: canary-hit
+    when: { fact: canary_match, equals: true }
+    level: L4
+    reason: Matches an organisation-owned canary fingerprint
+  - id: placeholder
+    when: { fact: placeholder, equals: true }
+    level: L0
+    reason: Placeholder or example content without a supported secret
+  - id: insufficient-evidence
+    when: { fact: secret_present, equals: true }
+    level: REVIEW
+    reason: A supported sensitive pattern was detected; ownership and impact need analyst review

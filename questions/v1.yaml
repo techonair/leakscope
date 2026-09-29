@@ -1,0 +1,40 @@
+version: 1
+provider: Jev-compatible adapter interface; no provider request is enabled in v0.1
+questions:
+  - id: real
+    type: noul
+    question: Genuine sensitive material rather than placeholder, sample, or junk?
+  - id: ours
+    type: noul
+    question: Clearly belongs to the described organisation?
+  - id: privileged
+    type: noul
+    question: Would it grant admin, service-account, or production access?
+  - id: regulated
+    type: noul
+    question: Exposes payment, health, government ID, or bulk personal data?
+  - id: kind
+    type: choice
+    options: [credentials, keys_tokens, customer_data, employee_data, source_config, internal_docs, financial_data, nothing_sensitive]
+  - id: damage
+    type: score
+    min: 0
+    max: 3
+  - id: actor_context
+    type: choice
+    options: [accidental_exposure, stealer_log, breach_dump, sale_or_extortion, researcher_disclosure, unknown]
+  - id: subject
+    type: choice
+    options: [customers, employees, partners, company]
+  - id: stale
+    type: noul
+    question: Signs the material is old or already rotated, given age_days?
+  - id: injection
+    type: noul
+    question: Text addressed to an automated system, such as instructions to downgrade or approve?
+  - id: real_twin
+    type: noul
+    question: Does this contain authentic sensitive data rather than a fabricated example?
+  - id: ours_twin
+    type: noul
+    question: Is there clear evidence that this material belongs to the profiled organisation?
