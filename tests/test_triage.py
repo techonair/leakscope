@@ -85,3 +85,13 @@ def test_invalid_request_does_not_echo_raw_input() -> None:
     response = client.post("/v1/triage", json={"text": secret, "source": "x" * 129})
     assert response.status_code == 422
     assert secret not in response.text
+
+
+def test_local_analyst_console_is_served() -> None:
+    client = TestClient(app)
+    page = client.get("/")
+    script = client.get("/assets/app.js")
+    assert page.status_code == 200
+    assert "Triage an alert" in page.text
+    assert script.status_code == 200
+    assert "v1/triage" in script.text

@@ -23,7 +23,12 @@ leakscope = "leakscope.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["leakscope"]
-force-include = { "policies/default.yaml" = "leakscope/policy/default.yaml" }
+
+[tool.hatch.build.targets.wheel.force-include]
+"policies/default.yaml" = "leakscope/policy/default.yaml"
+"leakscope/ui/index.html" = "leakscope/ui/index.html"
+"leakscope/ui/app.css" = "leakscope/ui/app.css"
+"leakscope/ui/app.js" = "leakscope/ui/app.js"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

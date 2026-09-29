@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>LeakScope | Triage</title>
+    <link rel="stylesheet" href="/assets/app.css">
+    <script src="/assets/app.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="LeakScope home">
+        <span class="brand-mark" aria-hidden="true">L</span>
+        <span>LeakScope</span>
+      </a>
+      <div class="topbar-meta"><span class="status-dot"></span>LOCAL TRIAGE <span class="version">v0.1</span></div>
+    </header>
+
+    <main>
+      <section class="page-heading" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">ANALYST WORKSPACE <span> / </span> SINGLE ITEM</p>
+          <h1 id="page-title">Triage an alert</h1>
+          <p class="lede">Inspect deterministic evidence. Uncertain items stay in review.</p>
+        </div>
+        <div class="privacy-note"><span class="lock-icon" aria-hidden="true">●</span> Raw input is not stored</div>
+      </section>
+
+      <div class="workbench">
+        <section class="input-panel" aria-labelledby="input-title">
+          <div class="panel-heading">
+            <div><p class="eyebrow">01 / INPUT</p><h2 id="input-title">Alert content</h2></div>
+            <span class="local-tag">LOCAL ONLY</span>
+          </div>
+          <form id="triage-form">
+            <label for="source">Source</label>
+            <select id="source" name="source">
+              <option value="manual">Manual review</option>
+              <option value="gitleaks">Gitleaks</option>
+              <option value="trufflehog">TruffleHog</option>
+              <option value="paste_site">Paste-site feed</option>
+              <option value="other">Other</option>
+            </select>
+            <label for="alert-text">Paste one alert or item</label>
+            <textarea id="alert-text" name="text" maxlength="1000000" required spellcheck="false" placeholder="Paste scanner output or a single suspicious item…"></textarea>
+            <div class="input-footer">
+              <span id="char-count">0 characters</span>
+              <button id="triage-button" type="submit"><span aria-hidden="true">↗</span> Run triage</button>
+            </div>
+            <p class="input-footnote">Input is sent only to this local LeakScope API. The original value is not shown in results.</p>
+          </form>
+        </section>
+
+        <section class="result-panel" aria-labelledby="result-title" aria-live="polite">
+          <div class="panel-heading">
+            <div><p class="eyebrow">02 / DECISION</p><h2 id="result-title">Triage result</h2></div>
+            <span id="result-state" class="result-state">AWAITING ITEM</span>
+          </div>
+          <div id="empty-state" class="empty-state">
+            <span class="empty-symbol" aria-hidden="true">⌁</span>
+            <p>Decision and evidence will appear here.</p>
+          </div>
+          <div id="result-content" class="result-content" hidden>
+            <div class="decision-line">
+              <span id="level-badge" class="level-badge">REVIEW</span>
+              <div><span class="field-label">DISPOSITION</span><p id="level-description"></p></div>
+            </div>
+            <div class="result-section">
+              <h3>Why this decision</h3>
+              <ul id="reasons" class="reasons"></ul>
+            </div>
+            <div class="result-section">
+              <h3>Detected evidence <span id="evidence-count" class="count"></span></h3>
+              <div id="evidence-list" class="evidence-list"></div>
+              <p id="no-evidence" class="muted" hidden>No supported secret pattern detected.</p>
+            </div>
+            <div class="result-section">
+              <h3>Masked preview</h3>
+              <pre id="masked-preview" class="masked-preview"></pre>
+            </div>
+            <details class="provenance">
+              <summary>Decision provenance</summary>
+              <dl id="provenance-list"></dl>
+            </details>
+          </div>
+          <p id="error-message" class="error-message" role="alert" hidden></p>
+        </section>
+      </div>
+
+      <footer class="page-footer">
+        <span>DETERMINISTIC DETECTION · CONSERVATIVE POLICY</span>
+        <span>Model classification is not configured</span>
+      </footer>
+    </main>
+  </body>
+</html>
